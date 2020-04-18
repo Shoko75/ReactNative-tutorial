@@ -14,6 +14,7 @@ const IndexScreen = ({ navigation }) => {
       getBlogPosts();
     });
 
+    // When screen is not visible, remove listener 
     return () => {
       listener.remove;
     };
