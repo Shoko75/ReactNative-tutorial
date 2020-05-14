@@ -12,6 +12,8 @@ const authReducer = (state, action) => {
       return { errorMessage: '', token: action.payload };
     case 'clear_error_message':
       return { ...state, errorMessage: '' };
+    case 'signout':
+      return { token: null, errorMassage: '' };
     default:
       return state;
   }
@@ -24,7 +26,7 @@ const tryLocalSignin = dispatch => async () => {
     dispatch({ type: 'signin', payload: token });
     navigate('TrackList');
   } else {
-    navigate('Signup');
+    navigate('Signin');
   }
 };
 
@@ -70,10 +72,13 @@ const signin = dispatch => async ({ email, password }) => {
 };
 
 // Signout function
-const signout = (dispatch) => {
-  return () => {
-    // somehow sign out!!!
-  };
+const signout = dispatch => async () => {
+  // remove token from storage
+  await AsyncStorage.removeItem('token');
+
+  // navigate to login
+  dispatch({ type: 'signout' });
+  navigate('Signin');
 };
 
 
