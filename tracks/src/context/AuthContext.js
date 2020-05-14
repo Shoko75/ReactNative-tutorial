@@ -8,11 +8,18 @@ const authReducer = (state, action) => {
     case 'add_error':
       // Set error message in the state
       return { ...state, errorMessage: action.payload };
-    case 'signup':
+    case 'signin':
       return { errorMessage: '', token: action.payload };
+    case 'clear_error_message':
+      return { ...state, errorMessage: '' };
     default:
       return state;
   }
+};
+
+// Delete errorMassage when go to different page
+const clearErrorMessage = dispatch => () => {
+  dispatch({ type: 'clear_error_message' });
 };
 
 // Signup function
@@ -23,24 +30,32 @@ const signup = dispatch => async ({ email, password }) => {
 
     // store the toke on AsyncStorage
     await AsyncStorage.setItem('token', response.data.token);
-    dispatch({ type: 'signup', payload: response.data.token });
+    dispatch({ type: 'signin', payload: response.data.token });
 
     // navigate to TrackList
     navigate('TrackList');
   } catch (err) {
     // set as error
-    console.log(err);
     dispatch({ type: 'add_error', payload: 'Something went wrong with sign up' })
   }
 };
 
 // Signin function
-const signin = (dispatch) => {
-  return ({ email, password }) => {
-    // Try to signin
+const signin = dispatch => async ({ email, password }) => {
+  try {
+    // Post signin
+    const response = await trackerApi.post('/signin', { email, password });
+
     // Handle success by updating state
-    // Handle failure by showing error message (somehow)
-  };
+    await AsyncStorage.setItem('token', response.data.token);
+    dispatch({ type: 'signin', payload: response.data.token });
+
+    //navigate to TrackList
+    navigate('TrackList');
+  } catch (err) {
+    // error
+    dispatch({ type: 'add_error', payload: 'Something went wrong with sign in' })
+  }
 };
 
 // Signout function
@@ -53,6 +68,6 @@ const signout = (dispatch) => {
 
 export const { Provider, Context } = createDataContext(
   authReducer,
-  { signin, signout, signup },
+  { signin, signout, signup, clearErrorMessage },
   { token: null, errorMessage: '' }
 );
