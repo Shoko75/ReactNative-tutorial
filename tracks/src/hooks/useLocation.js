@@ -18,7 +18,6 @@ export default (shouldTrack, callback) => {
         callback
       );
       setSubscriber(sub);
-      console.log(subscriber);
     } catch (e) {
       setErr(e);
     }
